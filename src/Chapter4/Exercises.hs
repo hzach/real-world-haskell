@@ -3,6 +3,10 @@ module Chapter4.Exercises
        (splitWith
       , asIntFold
       , asIntEither
+      , concat'
+      , takeWhileRec
+      , takeWhileFold
+      , groupByFold
         ) where
 
   import Data.Char
@@ -45,8 +49,33 @@ module Chapter4.Exercises
   asIntEither ('-':bs) = foldl (combine (-)) (Right 0) bs
   asIntEither cs       = foldl (combine (+)) (Right 0) cs
 
-  combine op (Right x) c | isDigit c    = Right $ op (10*x) (digitToInt c)
-                         | maxBound < x = Left "Integer Overflow"
-                         | otherwise    = Left $ "Not a digit '" ++ [c] ++ "'"
-  combine _ msg@(Left s) _              = msg
+  combine op (Right x) c | not $ isDigit c    = Left $ "Not a digit '" ++ [c] ++ "'"
+                         | 10*x `div` 10 /= x = Left "Integer Overflow"
+                         | otherwise          = Right $ op (10*x) (digitToInt c)
+  combine _ msg@(Left s) _                    = msg
 --------------------------------------------------------------------------------
+
+
+  concat' :: [[a]] -> [a]
+  concat' = foldr (++) []
+
+  takeWhileRec :: (a -> Bool) -> [a] -> [a]
+  takeWhileRec _ [] = []
+  takeWhileRec f (x:xs) =
+    if f x then x:takeWhileRec f xs
+    else []
+
+  takeWhileFold :: (a -> Bool) -> [a] -> [a]
+  takeWhileFold f = foldr (\x y -> if f x then x:y else []) []
+
+  groupByFold :: (a -> a -> Bool) -> [a] -> [[a]]
+  groupByFold _ []  = []
+  groupByFold f xs  = foldr step [[]] xs
+    where
+      g x []        = True
+      g x y         = f x $ head y
+      step x (y:ys) =
+        if g x y then (x:y):ys
+          else [x]:y:ys
+
+  
