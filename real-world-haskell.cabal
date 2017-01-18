@@ -34,8 +34,6 @@ test-suite real-world-haskell-test
   -- main-is:             Spec.hs
   other-Modules:       Chapter4.ExercisesSpec
   main-is:             Test.hs
-  -- other-Modules:       Spec
-  --                    , Chapter4.ExercisesSpec
   build-depends:       base
                      , real-world-haskell
                      , hspec
